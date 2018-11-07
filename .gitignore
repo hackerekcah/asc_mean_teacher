@@ -1,4 +1,5 @@
 .idea/
+*.png
 *.h5
 *.wav
 # Byte-compiled / optimized / DLL files
