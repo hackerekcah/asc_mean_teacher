@@ -2,12 +2,17 @@
 Acoustic Scene Classification with Device Mismatch, by Mean Teacher Approach
 
 ## install
-* create env and install pytorch & torchvision
+* create env and activate
 ```bash
 conda create -n asc_mt python=3.6 pip
+source activate asc_mt
+
+```
+* install pytorch torchvision from pytorch channel
+```bash
 conda install pytorch torchvision -c pytorch
 ```
-* install requirements.txt
+* install requirements with pip
 ```bash
 pip install -r requirements.txt
 ```
