@@ -101,6 +101,8 @@ class TaskbStandarizer:
         :param save_path:
         :return:
         """
+        if save_path and not os.path.exists(os.path.dirname(save_path)):
+            os.makedirs(os.path.dirname(save_path))
 
         device_list = ['a', 'b', 'c']
         # device_list = ['a', 'b', 'c', 'p']
@@ -144,7 +146,8 @@ class TaskbStandarizer:
 
 
 if __name__ == '__main__':
-    ori_data_manager = dcase18_taskb.Dcase18TaskbData()
+    from data_manager.dcase18_taskb import Dcase18TaskbData
+    ori_data_manager = Dcase18TaskbData()
     ori_standarizer = TaskbStandarizer(data_manager=ori_data_manager)
     ori_standarizer.create_scaler_h5()
     ori_fig_path = '../data_manager/scaler_plots/ori_scaler.png'
