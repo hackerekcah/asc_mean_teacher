@@ -78,6 +78,8 @@ class TaskbStandarizer:
         # transpose back to (batch, frequency, time)
         data = np.transpose(data, [0, 2, 1])
 
+        print("[LOGGING]Normalize using device {}".format(norm_device))
+
         return data, label
 
     def load_normed_spec_by_name(self, wav_name=None, norm_device=None):
