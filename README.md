@@ -16,8 +16,10 @@ conda install pytorch torchvision -c pytorch
 pip install -r requirements.txt
 ```
 * if want to run jupyter notebook examples, install a `kernelspec` for env
+```
 conda install jupyter ipykernel
 python -m ipykernel install --user --name asc_mt --display-name 'python3.6(asc_mt)'
+```
 ## 2. data_manager
 *NOTE: before use, config __data_manager.cfg__ properly*
 ### 2.1 extract and store feature in .h5 file
@@ -45,5 +47,6 @@ data_manager.load_dev(mode='train', devices='ab')
 ```python
 data_standarizer.load_dev_standrized(mode='train', device='a', norm_device='a')
 ```
+
 
 
