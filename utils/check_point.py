@@ -1,6 +1,7 @@
 import torch
 import os
 import numpy as np
+np.random.seed(0)
 
 
 class CheckPoint (object):

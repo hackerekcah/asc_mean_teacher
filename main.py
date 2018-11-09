@@ -4,6 +4,7 @@ import net_archs
 from data_loader.loader import ASCDevLoader
 import torch.optim as optim
 from utils.check_point import CheckPoint
+torch.manual_seed(0)
 
 
 def train(train_loader, model, optimizer, device, epoch):
@@ -49,12 +50,10 @@ def val(test_loader, model, device, epoch):
     print('\nEpoch{},Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
         epoch, test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
-    return {'loss':test_loss, 'acc': correct / len(test_loader.dataset)}
+    return {'loss': test_loss, 'acc': correct / len(test_loader.dataset)}
 
 
 def main():
-
-    torch.manual_seed(1)
 
     # set up cuda device
     os.environ['CUDA_VISIBLE_DEVICES'] = '4'
