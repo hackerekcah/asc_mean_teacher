@@ -1,4 +1,5 @@
 test/
+ckpt/
 .idea/
 *.png
 *.h5
