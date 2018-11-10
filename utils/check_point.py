@@ -47,6 +47,8 @@ class CheckPoint (object):
             'epoch': epoch,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
+            # TODO: diff torch.get_rng_state()?
+            'rng_state': torch.cuda.get_rng_state(),
             monitor: loss_acc[monitor]
         }, full_path)
 

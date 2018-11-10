@@ -43,5 +43,7 @@ class ASCDevLoader:
 
     def train_val(self, batch_size=128, shuffle=True):
         train_loader = DataLoader(dataset=self.train_set, batch_size=batch_size, shuffle=shuffle)
-        val_loader = DataLoader(dataset=self.val_set, batch_size=batch_size, shuffle=shuffle)
+
+        # Not need to shuffle validation data
+        val_loader = DataLoader(dataset=self.val_set, batch_size=batch_size, shuffle=False)
         return train_loader, val_loader
