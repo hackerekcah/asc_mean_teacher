@@ -28,18 +28,18 @@ def main():
     optimizer = optim.Adam(params=model.parameters(), lr=1e-4)
 
     # checkpoint
-    ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run01,Mixup', interval=3, save_num=3)
+    ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run03', interval=3, save_num=3)
 
     from utils.history import History
     train_hist = History(name='train')
     val_hist = History(name='val')
-    for epoch in range(10):
-        train_mixup(train_a, model, optimizer, device)
+    for epoch in range(300):
+        train_model(train_a, model, optimizer, device)
         train_loss_acc = eval_model(train_a, model, device)
         val_loss_acc = eval_model(val_a, model, device)
         print("Epoch{}train".format(epoch), train_loss_acc)
         print("Epoch{}val".format(epoch), val_loss_acc)
-        ckpter.check_on(epoch=epoch, monitor='loss', loss_acc=val_loss_acc)
+        ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_loss_acc)
         train_hist.add(train_loss_acc, epoch)
         val_hist.add(val_loss_acc, epoch)
 
