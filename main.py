@@ -31,7 +31,7 @@ def main():
     from utils.history import History
     train_hist, val_hist = History(name='train'), History(name='val')
 
-    # checkpoint
+    # checkpoint after new History, order matters
     ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run03', interval=3, save_num=3)
 
     for epoch in range(300):

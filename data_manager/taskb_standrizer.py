@@ -44,7 +44,7 @@ class TaskbStandarizer:
             return
         with h5py.File(self.scaler_h5, 'w') as f:
             for mode in ['train', 'test']:
-                for device in ['a', 'b', 'c', 'p']:
+                for device in ['a', 'b', 'c', 'p', 'A']:
                     grp = f.create_group(mode + '/' + device)
                     grp['mu'], grp['sigma'] = self.mu_sigma_by_device(mode=mode, device=device)
         f.close()
