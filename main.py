@@ -30,18 +30,21 @@ def main():
     # checkpoint
     ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run03', interval=3, save_num=3)
 
+    # history
     from utils.history import History
     train_hist = History(name='train')
     val_hist = History(name='val')
+    ckpter.bind_histories([train_hist, val_hist])
+
     for epoch in range(300):
         train_model(train_a, model, optimizer, device)
         train_loss_acc = eval_model(train_a, model, device)
         val_loss_acc = eval_model(val_a, model, device)
         print("Epoch{}train".format(epoch), train_loss_acc)
         print("Epoch{}val".format(epoch), val_loss_acc)
-        ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_loss_acc)
         train_hist.add(train_loss_acc, epoch)
         val_hist.add(val_loss_acc, epoch)
+        ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_loss_acc)
 
 
 if __name__ == '__main__':

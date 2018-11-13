@@ -7,10 +7,12 @@ class Visualizer (object):
     """
     func1: plot filters as images
     func2: plot feature maps as images
+    func3: visualize train/val history
     """
     def __init__(self, ckpt_file, model=None):
 
         self.model_state_dict = torch.load(ckpt_file)['model_state_dict']
+        self.hist_list = torch.load(ckpt_file)['histories']
 
         if model:
             self.bind_model(model)
@@ -35,6 +37,8 @@ class Visualizer (object):
         self.model.load_state_dict(self.model_state_dict, strict=False)
         # explicit move to cuda
         self.model.cuda()
+        # set as evaluation mode
+        self.model.eval()
         return self
 
     def feed(self, x):
@@ -80,7 +84,7 @@ class Visualizer (object):
         plt.show()
 
     def module_out(self, module_name=None):
-        # TODO: Set training == False?
+
         """
         given module_name, return output tensor
         :param module_name:
@@ -88,6 +92,7 @@ class Visualizer (object):
         """
 
         assert self.model is not None
+        assert not self.model.training
         x = self.inputs
         for name, module in self.model.named_children():
             with torch.no_grad():
@@ -97,6 +102,15 @@ class Visualizer (object):
 
         print("No module matched", module_name)
         return None
+
+    def phitory(self):
+        """
+        plot train/val histories
+        :return:
+        """
+        assert self.hist_list is not None
+        for hist in self.hist_list:
+            hist.plot()
 
     def fea_map(self, after=None):
         """
@@ -155,7 +169,8 @@ if __name__ == '__main__':
     import os
     os.environ['CUDA_VISIBLE_DEVICES'] = '5'
 
-    vis = Visualizer(ckpt_file='../ckpt/Run03,BaseConv,Epoch_210,acc_0.660048.tar')
+    vis = Visualizer(ckpt_file='../test/ckpt/Run01,BaseConv,Epoch_4,loss_0.013118.tar')
 
-    vis.conv1_weight()
+    # vis.conv1_weight()
 
+    vis.phitory()

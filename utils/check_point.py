@@ -20,6 +20,8 @@ class CheckPoint (object):
         self.save_num = save_num
         self._monitored = []
         self._path_list = []
+        # a list of histories
+        self.histories = None
         # create checkpoint dir
         if not os.path.exists(path):
             os.makedirs(path)
@@ -49,6 +51,7 @@ class CheckPoint (object):
             'optimizer_state_dict': self.optimizer.state_dict(),
             # TODO: diff torch.get_rng_state()?
             'rng_state': torch.cuda.get_rng_state(),
+            'histories': self.histories,
             monitor: loss_acc[monitor]
         }, full_path)
 
@@ -78,6 +81,9 @@ class CheckPoint (object):
 
         # save new
         self.save(epoch, monitor, loss_acc, save_path=new_path)
+
+    def bind_histories(self, hist_list):
+        self.histories = hist_list
 
     def check_on(self, epoch, monitor, loss_acc):
         """

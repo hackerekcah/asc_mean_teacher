@@ -13,7 +13,6 @@ class History (object):
         self.loss = []
         self.acc = []
         self.axes = []
-        self.set_axes(axes=None)
 
     def add(self, logs, epoch):
         self.epoch.append(epoch)
@@ -30,10 +29,14 @@ class History (object):
             self.axes.append(plt.subplot(2, 1, 1))
             self.axes.append(plt.subplot(2, 1, 2))
 
-    def plot(self, axes=None, show=False):
-        # axes usually returned by subplot
-
-        clear_output(wait=True)
+    def plot(self, axes=None, show=True):
+        """
+        plot loss acc in subplots
+        :param axes: # axes usually returned by subplot if provided
+        :param show:
+        :return:
+        """
+        # if provided, set, else create
         self.set_axes(axes=axes)
 
         self.axes[0].plot(self.epoch, self.loss)
@@ -48,3 +51,12 @@ class History (object):
 
         plt.show() if show else None
 
+    def clc_plot(self, axes=None, show=True):
+        """
+        clear output before plot, use in jupyter notebook to dynamically plot
+        :param axes:
+        :param show:
+        :return:
+        """
+        clear_output(wait=True)
+        self.plot(axes=axes, show=show)
