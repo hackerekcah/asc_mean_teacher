@@ -27,14 +27,12 @@ def main():
     # optimizer
     optimizer = optim.Adam(params=model.parameters(), lr=1e-4)
 
-    # checkpoint
-    ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run03', interval=3, save_num=3)
-
     # history
     from utils.history import History
-    train_hist = History(name='train')
-    val_hist = History(name='val')
-    ckpter.bind_histories([train_hist, val_hist])
+    train_hist, val_hist = History(name='train'), History(name='val')
+
+    # checkpoint
+    ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run03', interval=3, save_num=3)
 
     for epoch in range(300):
         train_model(train_a, model, optimizer, device)

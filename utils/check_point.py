@@ -22,6 +22,9 @@ class CheckPoint (object):
         self._path_list = []
         # a list of histories
         self.histories = None
+        # automatically bind History instances declared before
+        self._bind_history_objs()
+
         # create checkpoint dir
         if not os.path.exists(path):
             os.makedirs(path)
@@ -82,8 +85,22 @@ class CheckPoint (object):
         # save new
         self.save(epoch, monitor, loss_acc, save_path=new_path)
 
-    def bind_histories(self, hist_list):
+    def _bind_history_objs(self):
+        import gc
+        from utils.history import History
+
+        hist_list = []
+        for obj in gc.get_objects():
+            if isinstance(obj, History):
+                hist_list.append(obj)
+
         self.histories = hist_list
+
+    def bind_histories(self, hist_list=None):
+        if hist_list:
+            self.histories = hist_list
+        else:
+            self._bind_history_objs()
 
     def check_on(self, epoch, monitor, loss_acc):
         """

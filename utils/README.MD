@@ -1,12 +1,16 @@
 # utils
 ## check_point.py
 * instantiate a CheckPoint
+Note: will automatically add History obj **defined before** into checkpoint
 ```python
 ckpter = CheckPoint(model=model, optimizer=optimizer,
     path='./ckpt', prefix='Run01', interval=2, save_num=1)
 ```
-* bind history to save train/val history
+* Explicitly bind history to save train/val history
 ```python
+# best practice is to new CheckPoint before new History
+# Which will automatically add History obj into checkpoint
+
 ckpter.bind_histories([train_hist, val_hist])
 ```
 * call .chech_on() on each epoch
