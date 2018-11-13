@@ -6,7 +6,7 @@ ckpter = CheckPoint(model=model, optimizer=optimizer,
     path='./ckpt', prefix='Run01', interval=2, save_num=1)
 ```
 * bind history to save train/val history
-```
+```python
 ckpter.bind_histories([train_hist, val_hist])
 ```
 * call .chech_on() on each epoch
@@ -18,14 +18,14 @@ for epoch in range(10):
 ## history.py
 a class to hold and plot acc&loss history
 * instantiate a History
-```
+```python
 his = History(name='train')
 ```
 * call `.add()` method
 ```python
 logs = {'loss': 1e-1, 'acc': 0.2}
 his.add(epoch=1, log)
-```
+```python
 * plot train/val history
 ```
 his.plot()
@@ -36,7 +36,7 @@ his.plot()
 * visualize train/val histories
 ### Plot filters
 * only support 1st layer
-```
+```python
 vis.conv1_weight()
 ```
 
@@ -50,6 +50,6 @@ vis.feed(x).fea_map('conv1').show(batch_idx=None, channel_idx=1)
 ```
 
 ### Plot train/val histories
-```
+```python
 vis.phistory()
 ```
