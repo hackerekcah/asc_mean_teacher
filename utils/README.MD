@@ -25,9 +25,9 @@ his = History(name='train')
 ```python
 logs = {'loss': 1e-1, 'acc': 0.2}
 his.add(epoch=1, log)
-```python
-* plot train/val history
 ```
+* plot train/val history
+```python
 his.plot()
 ```
 ## vis.py
