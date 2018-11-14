@@ -14,7 +14,7 @@ def train_mixup(train_loader, model, optimizer, device):
         logits = model(x)
 
         # inside CE: combined LogSoftmax and NLLLoss
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss(reduction='sum')
 
         loss = mixup_criterion(criterion, logits, y1, y2, lam)
 
@@ -34,7 +34,7 @@ def train_model(train_loader, model, optimizer, device):
         logits = model(x)
 
         # inside CE: combined LogSoftmax and NLLLoss
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss(reduction='sum')
         loss = criterion(logits, y)
         optimizer.zero_grad()
         loss.backward()
@@ -61,7 +61,7 @@ def eval_model(test_loader, model, device):
             _, target = target.max(dim=1)
             logits = model(data)
             # inside CE: combined LogSoftmax and NLLLoss
-            criterion = torch.nn.CrossEntropyLoss()
+            criterion = torch.nn.CrossEntropyLoss(reduction='sum')
             loss = criterion(logits, target)
 
             test_loss += loss.item() # sum up batch loss
