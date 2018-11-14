@@ -145,9 +145,9 @@ class Visualizer (object):
         vmin, vmax = self.inspect_fmap.min(), self.inspect_fmap.max()
 
         if batch_idx is not None:
-            image = self.inspect_fmap[batch_idx, channel_idx, :, :].squeeze()
+            image = self.inspect_fmap[batch_idx, channel_idx, :, :]
             plt.figure(dpi=500)
-            plt.imshow(image, vmin=vmin, vmax=vmax)
+            plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
             title = ','.join([self.model.__class__.__name__,
                               self.inspect_fmap_name,
                               "(B:{},C:{})".format(batch_idx, channel_idx)
@@ -156,7 +156,7 @@ class Visualizer (object):
             plt.show()
         else:
             # (B, H, W)
-            batch_img = self.inspect_fmap[:, channel_idx, :, :].squeeze()
+            batch_img = self.inspect_fmap[:, channel_idx, :, :]
             plt.figure(dpi=500)
             for i, image in enumerate(batch_img, start=1):
                 plt.subplot(len(batch_img), 1, i)
@@ -165,7 +165,7 @@ class Visualizer (object):
                                  "(B:{},C:{})".format(i - 1, channel_idx)]
                                  )
                 plt.title(title)
-                plt.imshow(image, vmin=vmin, vmax=vmax)
+                plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
             plt.show()
 
 
@@ -173,8 +173,11 @@ if __name__ == '__main__':
     import os
     os.environ['CUDA_VISIBLE_DEVICES'] = '5'
 
-    vis = Visualizer(ckpt_file='../test/ckpt/Run01,BaseConv,Epoch_4,loss_0.013118.tar')
+    from net_archs import BaseConv
+    model = BaseConv(filters=32, is_bn=True, is_drop=True)
+    vis = Visualizer(ckpt_file='../ckpt/EXP1/Run01,BaseConv,Epoch_188,acc_0.516667.tar', model=model)
 
-    # vis.conv1_weight()
+    x = torch.rand(3, 1, 40, 500)
+    vis.feed(x).fea_map('drop1').show(batch_idx=None, channel_idx=1)
 
     vis.phistory()
