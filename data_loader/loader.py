@@ -1,38 +1,7 @@
-from data_manager.dcase18_taskb import Dcase18TaskbData
-from data_manager.taskb_standrizer import TaskbStandarizer
 from torch.utils.data import Dataset, DataLoader
-import numpy as np
+from data_loader.data_sets import *
+from data_loader.transformer import *
 import torch
-
-
-class TaskbDevSet (Dataset):
-    def __init__(self, mode='train', device='a', transform=None):
-        super(TaskbDevSet, self).__init__()
-
-        # x.shape(Bath, Hight, Width)
-        self.x, self.y = TaskbStandarizer(data_manager=Dcase18TaskbData()).\
-            load_dev_standrized(mode=mode, device=device, norm_device=device)
-
-        self.x = np.expand_dims(self.x, axis=1)
-
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.x)
-
-    def __getitem__(self, idx):
-        sample = (self.x[idx], self.y[idx])
-        if self.transform:
-            sample = self.transform(sample)
-        return sample
-
-
-class ToTensor(object):
-
-    def __call__(self, sample):
-        x, y = torch.from_numpy(sample[0]), torch.from_numpy(sample[1])
-        x, y = x.type(torch.FloatTensor), y.type(torch.LongTensor)
-        return x, y
 
 
 class ASCDevLoader:
@@ -47,3 +16,28 @@ class ASCDevLoader:
         # Not need to shuffle validation data
         val_loader = DataLoader(dataset=self.val_set, batch_size=batch_size, shuffle=False)
         return train_loader, val_loader
+
+
+class Exp1Loader (object):
+
+    def __init__(self):
+        self.trainA = TaskbDevSet(mode='train', device='A', norm_device='A', transform=ToTensor())
+        self.valp = TaskbDevSet(mode='test', device='p', norm_device='A', transform=ToTensor())
+        self.valb = TaskbDevSet(mode='test', device='b', norm_device='b', transform=ToTensor())
+
+    def train(self, batch_size=128, shuffle=True):
+        train_loader = DataLoader(dataset=self.trainA, batch_size=batch_size, shuffle=shuffle)
+        return train_loader
+
+    def val(self, batch_size=128):
+        loaders = {}
+        valp_loader = DataLoader(dataset=self.valp, batch_size=batch_size, shuffle=False)
+        valb_loader = DataLoader(dataset=self.valb, batch_size=batch_size, shuffle=False)
+        loaders['p'] = valp_loader
+        loaders['b'] = valb_loader
+
+        return loaders
+
+    def train_val(self, batch_size=128):
+        return self.train(batch_size=batch_size), self.val(batch_size=batch_size)
+

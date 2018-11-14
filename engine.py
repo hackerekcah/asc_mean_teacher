@@ -25,6 +25,8 @@ def train_mixup(train_loader, model, optimizer, device):
 
 def train_model(train_loader, model, optimizer, device):
     model.train(mode=True)
+    train_loss = 0
+    correct = 0
     for batch_idx, (x, y) in enumerate(train_loader):
         x, y = x.to(device), y.to(device)
         _, y = y.max(dim=1)
@@ -37,10 +39,15 @@ def train_model(train_loader, model, optimizer, device):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        # if batch_idx % 10 == 0:
-        #     print('Train Epoch{}:[{}/{} ({:.0f}%)]\tBatchLoss:{:.6f}'.format(
-        #         epoch, batch_idx * len(x), len(train_loader.dataset),
-        #         100. * batch_idx / len(train_loader), loss.item() / len(x)))
+
+        train_loss += loss.item()
+        with torch.no_grad():
+            pred = logits.max(1, keepdim=True)[1]  # get the index of the max log-probability
+            correct += pred.eq(y.view_as(pred)).sum().item()
+
+    train_loss /= len(train_loader.dataset)
+    train_acc = correct / len(train_loader.dataset)
+    return {'loss': train_loss, 'acc': train_acc}
 
 
 def eval_model(test_loader, model, device):

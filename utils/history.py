@@ -13,8 +13,10 @@ class History (object):
         self.loss = []
         self.acc = []
         self.axes = []
+        self.recent = None
 
     def add(self, logs, epoch):
+        self.recent = logs
         self.epoch.append(epoch)
         self.loss.append(logs['loss'])
         self.acc.append(logs['acc'])

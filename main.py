@@ -1,49 +1,63 @@
 import torch
 import os
 import net_archs
-from data_loader.loader import ASCDevLoader
+from data_loader.loader import *
 import torch.optim as optim
-from engine import train_model, train_mixup, eval_model
+from engine import *
 from utils.check_point import CheckPoint
+from utils.history import History
+import numpy as np
 torch.manual_seed(0)
+np.random.seed(0)
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def main():
+def exp1():
 
     # set up cuda device
     os.environ['CUDA_VISIBLE_DEVICES'] = '4'
     device = torch.device('cuda')
 
-    # laod input to cuda
-    train_a, val_a = ASCDevLoader(device='a').train_val()
+    # load input to cuda
+    train_loader, val_loaders = Exp1Loader().train_val()
 
     # load model to cuda
     model = net_archs.BaseConv(filters=32, is_bn=True, is_drop=True)
     model.to(device)
 
-    from torchsummary import summary
-    summary(model, input_size=(1, 40, 500))
+    # from torchsummary import summary
+    # summary(model, input_size=(1, 40, 500))
 
     # optimizer
     optimizer = optim.Adam(params=model.parameters(), lr=1e-4)
 
-    # history
-    from utils.history import History
-    train_hist, val_hist = History(name='train'), History(name='val')
+    train_hist, val_histp, val_histb = History(name='train/A'), History(name='val/p'), History(name='val/b')
 
     # checkpoint after new History, order matters
-    ckpter = CheckPoint(model=model, optimizer=optimizer, path='./ckpt', prefix='Run03', interval=3, save_num=3)
+    ckpter = CheckPoint(model=model, optimizer=optimizer, path='{}/ckpt/EXP1'.format(ROOT_DIR),
+                        prefix='Run01', interval=2, save_num=2)
 
     for epoch in range(300):
-        train_model(train_a, model, optimizer, device)
-        train_loss_acc = eval_model(train_a, model, device)
-        val_loss_acc = eval_model(val_a, model, device)
-        print("Epoch{}train".format(epoch), train_loss_acc)
-        print("Epoch{}val".format(epoch), val_loss_acc)
-        train_hist.add(train_loss_acc, epoch)
-        val_hist.add(val_loss_acc, epoch)
-        ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_loss_acc)
+        train_hist.add(
+            logs=train_model(train_loader, model, optimizer, device),
+            epoch=epoch
+        )
+        val_histp.add(
+            logs=eval_model(val_loaders['p'], model, device),
+            epoch=epoch
+        )
+
+        val_histb.add(
+            logs=eval_model(val_loaders['b'], model, device),
+            epoch=epoch
+        )
+
+        train_hist.clc_plot()
+        val_histp.plot()
+        val_histb.plot()
+
+        ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_histb.recent)
 
 
 if __name__ == '__main__':
-    main()
+    exp1()
