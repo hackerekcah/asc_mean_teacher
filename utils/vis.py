@@ -75,12 +75,14 @@ class Visualizer (object):
         weight = np.squeeze(weight)
         vmin, vmax = weight.min(), weight.max()
 
-        plt.figure()
+        plt.figure(dpi=500)
         ncol = int(len(weight) / nrow)
         for i, image in enumerate(weight, start=1):
             plt.subplot(nrow, ncol, i)
             plt.imshow(image, cmap='gray', vmin=vmin, vmax=vmax)
-
+            plt.xticks([])
+            plt.yticks([])
+        plt.tight_layout()
         plt.show()
 
     def module_out(self, module_name=None):
@@ -103,7 +105,7 @@ class Visualizer (object):
         print("No module matched", module_name)
         return None
 
-    def phitory(self):
+    def phistory(self):
         """
         plot train/val histories
         :return:
@@ -144,6 +146,7 @@ class Visualizer (object):
 
         if batch_idx is not None:
             image = self.inspect_fmap[batch_idx, channel_idx, :, :].squeeze()
+            plt.figure(dpi=500)
             plt.imshow(image, vmin=vmin, vmax=vmax)
             title = ','.join([self.model.__class__.__name__,
                               self.inspect_fmap_name,
@@ -154,6 +157,7 @@ class Visualizer (object):
         else:
             # (B, H, W)
             batch_img = self.inspect_fmap[:, channel_idx, :, :].squeeze()
+            plt.figure(dpi=500)
             for i, image in enumerate(batch_img, start=1):
                 plt.subplot(len(batch_img), 1, i)
                 title = ','.join([self.model.__class__.__name__,
@@ -173,4 +177,4 @@ if __name__ == '__main__':
 
     # vis.conv1_weight()
 
-    vis.phitory()
+    vis.phistory()
