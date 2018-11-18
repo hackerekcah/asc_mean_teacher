@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from IPython.display import clear_output
 import numpy as np
 
+
 class History (object):
     """
     class to hold `loss` and `accuracy` over `epoch`

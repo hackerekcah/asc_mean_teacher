@@ -125,3 +125,7 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=200, run_epochs=1000, lr=
 
         teacher_ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_hist['T/b'].recent)
         student_ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_hist['S/b'].recent)
+
+    # explicitly save the last run
+    teacher_ckpter.save(epoch=run_epochs-1, monitor='acc', loss_acc=val_hist['T/b'].recent)
+    student_ckpter.save(epoch=run_epochs-1, monitor='acc', loss_acc=val_hist['T/b'].recent)
