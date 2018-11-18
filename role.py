@@ -3,7 +3,7 @@ import math
 
 
 class Student (object):
-    def __init__(self, model, verbose=True, lr=1e-4):
+    def __init__(self, model, verbose=False, lr=1e-4):
         self.verbose = verbose
         self.model = model
         self.optimizer = torch.optim.Adam(params=self.model.parameters(), lr=lr)
@@ -35,7 +35,7 @@ class Student (object):
         self.consistency_loss = self._consistency_loss(student_logits, teacher.logits)
         weighted_consistency_loss = self.teacher_weight * rampup_weight * self.consistency_loss
         self.total_loss += weighted_consistency_loss
-        print("weighted_consistency_loss:", weighted_consistency_loss.item())
+        print("weighted_consistency_loss:", weighted_consistency_loss.item()) if self.verbose else None
         return weighted_consistency_loss.item()
 
     def update(self):
@@ -92,7 +92,7 @@ class WeightEMA (object):
 
 class RampUp (object):
 
-    def __init__(self, rampup_epochs=80, verbose=True):
+    def __init__(self, rampup_epochs=80, verbose=False):
         self.verbose = verbose
         self.rampup_epochs = rampup_epochs
         self._rampup_counter = 0

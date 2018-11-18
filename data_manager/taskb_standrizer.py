@@ -78,7 +78,7 @@ class TaskbStandarizer:
         # transpose back to (batch, frequency, time)
         data = np.transpose(data, [0, 2, 1])
 
-        print("[LOGGING]Normalize using device {}".format(norm_device))
+        print("[LOGGING] Normalize using device {}".format(norm_device))
 
         return data, label
 

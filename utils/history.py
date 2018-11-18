@@ -70,3 +70,7 @@ class History (object):
         """
         clear_output(wait=True)
         self.plot(axes=axes, show=show)
+
+    def clear(self):
+        clear_output(wait=True)
+
