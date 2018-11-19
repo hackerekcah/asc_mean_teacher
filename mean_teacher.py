@@ -15,14 +15,15 @@ np.random.seed(0)
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def run(device='3', ckpt_prefix='Run01', rampup_epochs=200, run_epochs=1000, lr=1e-3):
+def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
+        lr=1e-3, teacher_weight=3, teacher_ema_alhpa=0.999, log_level='DEBUG'):
 
     # setup logging and save kwargs
     kwargs = locals()
     log_file = '{}/ckpt/mean_teacher/{}.log'.format(ROOT_DIR, ckpt_prefix)
     if not os.path.exists(os.path.dirname(log_file)):
         os.makedirs(os.path.dirname(log_file))
-    logging.basicConfig(filename=log_file, level=logging.INFO)
+    logging.basicConfig(filename=log_file, level=getattr(logging, log_level.upper(), None))
     logging.info(str(kwargs))
 
     # set up cuda device
@@ -47,8 +48,8 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=200, run_epochs=1000, lr=
     teacher_model = net_archs.BaseConv(filters=32, is_bn=True, is_drop=True)
     teacher_model.to(device)
 
-    student = Student(student_model, lr=lr)
-    teacher = Teacher(teacher_model).bind(student)
+    student = Student(student_model, lr=lr, teacher_weight=teacher_weight)
+    teacher = Teacher(teacher_model).bind(student, teacher_alpha=teacher_ema_alhpa)
 
     train_hist = dict()
     train_hist['T/A'] = History(name='teacher/train/A')

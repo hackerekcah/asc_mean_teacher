@@ -50,15 +50,16 @@ class History (object):
         self.set_axes(axes=axes)
 
         ticks = self._get_tick()
-        self.axes[0].plot(self.epoch, self.loss)
-        self.axes[0].legend([self.name + "/loss"])
-        self.axes[0].set_xticks(ticks)
-        self.axes[0].set_xticklabels([str(e) for e in ticks])
-
-        self.axes[1].plot(self.epoch, self.acc)
-        self.axes[1].legend([self.name + "/acc"])
-        self.axes[1].set_xticks(ticks)
-        self.axes[1].set_xticklabels([str(e) for e in ticks])
+        if self.loss is not None:
+            self.axes[0].plot(self.epoch, self.loss)
+            self.axes[0].legend([self.name + "/loss"])
+            self.axes[0].set_xticks(ticks)
+            self.axes[0].set_xticklabels([str(e) for e in ticks])
+        if self.acc is not None:
+            self.axes[1].plot(self.epoch, self.acc)
+            self.axes[1].legend([self.name + "/acc"])
+            self.axes[1].set_xticks(ticks)
+            self.axes[1].set_xticklabels([str(e) for e in ticks])
 
         plt.show() if show else None
 

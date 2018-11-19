@@ -1,10 +1,10 @@
 import torch
 import math
+import logging
 
 
 class Student (object):
-    def __init__(self, model, verbose=False, lr=1e-4):
-        self.verbose = verbose
+    def __init__(self, model, lr=1e-4, teacher_weight=3):
         self.model = model
         self.optimizer = torch.optim.Adam(params=self.model.parameters(), lr=lr)
         self.cls_criterion = torch.nn.CrossEntropyLoss(reduction='elementwise_mean')
@@ -13,15 +13,16 @@ class Student (object):
         self.total_loss = 0
         self.cls_loss = None
         self.consistency_loss = None
-        self.teacher_weight = 3
+        self.teacher_weight = teacher_weight
+
+        self._step = 0
 
     def feed_labeled(self, xl, y):
         self.model.train()
         logits = self.model(xl)
         self.cls_loss = self.cls_criterion(logits, y)
         self.total_loss += self.cls_loss
-        if self.verbose:
-            print("cls_loss:", self.cls_loss.item())
+        logging.debug("Step:{},cls_loss:{}".format(self._step, self.cls_loss.item()))
         return self.cls_loss.item()
 
     def _consistency_loss(self, student_logits, teacher_logits):
@@ -35,7 +36,8 @@ class Student (object):
         self.consistency_loss = self._consistency_loss(student_logits, teacher.logits)
         weighted_consistency_loss = self.teacher_weight * rampup_weight * self.consistency_loss
         self.total_loss += weighted_consistency_loss
-        print("weighted_consistency_loss:", weighted_consistency_loss.item()) if self.verbose else None
+        logging.debug("Step:{},consistency_loss:{}".format(self._step, self.consistency_loss.item()))
+        logging.debug("Step:{},weighted_consistency_loss:{}".format(self._step, weighted_consistency_loss.item()))
         return weighted_consistency_loss.item()
 
     def update(self):
@@ -45,6 +47,7 @@ class Student (object):
 
         # reset total loss to zero, otherwise will accumulate loss over epochs
         self.total_loss = 0
+        self._step += 1
 
 
 class Teacher (object):
@@ -59,6 +62,7 @@ class Teacher (object):
         self.logits = None
 
     def bind(self, student, teacher_alpha=0.999):
+        logging.info("WeightEMA teacher_alpha:{}".format(teacher_alpha))
         self.optimizer = WeightEMA(self.model.parameters(), student.model.parameters(), alpha=teacher_alpha)
         return self
 
@@ -92,8 +96,7 @@ class WeightEMA (object):
 
 class RampUp (object):
 
-    def __init__(self, rampup_epochs=80, verbose=False):
-        self.verbose = verbose
+    def __init__(self, rampup_epochs=80):
         self.rampup_epochs = rampup_epochs
         self._rampup_counter = 0
 
@@ -105,7 +108,7 @@ class RampUp (object):
             weight = math.exp(-p * p * 5.0)
         else:
             weight = 1.0
-        print("Epoch{},rampup_weight{:.3f}".format(self._rampup_counter, weight)) if self.verbose else None
+        logging.debug("Epoch{},rampup_weight{:.3f}".format(self._rampup_counter, weight))
         return weight
 
 
