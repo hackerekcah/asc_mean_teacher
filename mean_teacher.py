@@ -72,7 +72,7 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
                                 prefix=ckpt_prefix, interval=2, save_num=2)
     student_ckpter.bind_histories([train_hist['S/A'], train_hist['S/b'], val_hist['S/p'], val_hist['S/b']])
 
-    # rampup 80 epochs
+    # setup rampup
     rampup = RampUp(rampup_epochs=rampup_epochs)
 
     for epoch in range(1, run_epochs):

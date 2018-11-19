@@ -61,9 +61,9 @@ class UdaLoader (object):
 
     def train_for_eval(self, batch_size=128, shuffle=False):
         src_loader = DataLoader(dataset=self.trainA, batch_size=batch_size, shuffle=shuffle,
-                                drop_last=True, num_workers=1)
+                                num_workers=1)
         dst_loader = DataLoader(dataset=self.trainb, batch_size=batch_size, shuffle=shuffle,
-                                drop_last=True, num_workers=1)
+                                num_workers=1)
         return src_loader, dst_loader
 
     def val(self, batch_size=128, shuffle=False):
