@@ -1,5 +1,8 @@
 test/
 ckpt/
+cnn_model.py
+data_manager/test_python.py
+data_manager/data_manager.cfg
 .idea/
 *.png
 *.h5
