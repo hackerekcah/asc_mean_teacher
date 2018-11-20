@@ -2,6 +2,17 @@ import torch
 from data_loader.mixup import mixup_data, mixup_criterion
 
 
+def ts_train(src_loader, dst_loader, student, teacher, device, rampup_weight):
+    for batch_idx, ((xl, y), ((xu, _), (xu_, _))) in enumerate(zip(src_loader, dst_loader)):
+        xl, y, xu, xu_ = xl.to(device), y.to(device), xu.to(device), xu_.to(device)
+        # onehot to int
+        _, y = y.max(dim=1)
+        student.feed_labeled(xl, y)
+        student.learn_from(xu=xu, teacher=teacher.feed_unlabeled(xu_), rampup_weight=rampup_weight)
+        student.update()
+        teacher.update()
+
+
 def train_mixup(train_loader, model, optimizer, device):
     model.train(mode=True)
     for batch_idx, (x, y) in enumerate(train_loader):
@@ -14,7 +25,7 @@ def train_mixup(train_loader, model, optimizer, device):
         logits = model(x)
 
         # inside CE: combined LogSoftmax and NLLLoss
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss(reduction='sum')
 
         loss = mixup_criterion(criterion, logits, y1, y2, lam)
 
@@ -34,7 +45,7 @@ def train_model(train_loader, model, optimizer, device):
         logits = model(x)
 
         # inside CE: combined LogSoftmax and NLLLoss
-        criterion = torch.nn.CrossEntropyLoss()
+        criterion = torch.nn.CrossEntropyLoss(reduction='sum')
         loss = criterion(logits, y)
         optimizer.zero_grad()
         loss.backward()
@@ -61,7 +72,7 @@ def eval_model(test_loader, model, device):
             _, target = target.max(dim=1)
             logits = model(data)
             # inside CE: combined LogSoftmax and NLLLoss
-            criterion = torch.nn.CrossEntropyLoss()
+            criterion = torch.nn.CrossEntropyLoss(reduction='sum')
             loss = criterion(logits, target)
 
             test_loss += loss.item() # sum up batch loss

@@ -41,3 +41,36 @@ class Exp1Loader (object):
     def train_val(self, batch_size=128):
         return self.train(batch_size=batch_size), self.val(batch_size=batch_size)
 
+
+class UdaLoader (object):
+
+    def __init__(self):
+        self.trainA = TaskbDevSet(mode='train', device='A', norm_device='A', transform=ToTensor())
+        self.trainb_double = TaskbDevDoubleSet(mode='train', device='b', norm_device='b', transform=ToTensor())
+        self.trainb = TaskbDevSet(mode='train', device='b', norm_device='b', transform=ToTensor())
+        self.valp = TaskbDevSet(mode='test', device='p', norm_device='A', transform=ToTensor())
+        self.valb = TaskbDevSet(mode='test', device='b', norm_device='b', transform=ToTensor())
+
+    def train(self, batch_size=128, shuffle=True):
+        src_loader = DataLoader(dataset=self.trainA, batch_size=batch_size, shuffle=shuffle,
+                                drop_last=True, num_workers=1)
+        dst_double_loader = DataLoader(dataset=self.trainb_double, batch_size=batch_size, shuffle=shuffle,
+                                       drop_last=True, num_workers=1)
+
+        return src_loader, dst_double_loader
+
+    def train_for_eval(self, batch_size=128, shuffle=False):
+        src_loader = DataLoader(dataset=self.trainA, batch_size=batch_size, shuffle=shuffle,
+                                num_workers=1)
+        dst_loader = DataLoader(dataset=self.trainb, batch_size=batch_size, shuffle=shuffle,
+                                num_workers=1)
+        return src_loader, dst_loader
+
+    def val(self, batch_size=128, shuffle=False):
+        loaders = {}
+        valp_loader = DataLoader(dataset=self.valp, batch_size=batch_size, shuffle=shuffle)
+        valb_loader = DataLoader(dataset=self.valb, batch_size=batch_size, shuffle=shuffle)
+        loaders['p'] = valp_loader
+        loaders['b'] = valb_loader
+
+        return loaders

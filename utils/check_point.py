@@ -51,7 +51,7 @@ class CheckPoint (object):
         torch.save({
             'epoch': epoch,
             'model_state_dict': self.model.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict() if self.optimizer else None,
             # TODO: diff torch.get_rng_state()?
             'rng_state': torch.cuda.get_rng_state(),
             'histories': self.histories,

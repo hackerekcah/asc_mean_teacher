@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
+import numpy as np
 
 
 class History (object):
@@ -31,6 +32,13 @@ class History (object):
             self.axes.append(plt.subplot(2, 1, 1))
             self.axes.append(plt.subplot(2, 1, 2))
 
+    def _get_tick(self):
+        tick_max = np.max(self.epoch)
+        ticks_int = np.arange(0, tick_max, np.ceil(tick_max / 5))
+        if max(ticks_int) != tick_max:
+            ticks_int = np.append(ticks_int, tick_max)
+        return ticks_int
+
     def plot(self, axes=None, show=True):
         """
         plot loss acc in subplots
@@ -41,15 +49,17 @@ class History (object):
         # if provided, set, else create
         self.set_axes(axes=axes)
 
-        self.axes[0].plot(self.epoch, self.loss)
-        self.axes[0].legend([self.name + "/loss"])
-        self.axes[0].set_xticks(self.epoch)
-        self.axes[0].set_xticklabels([str(e) for e in self.epoch])
-
-        self.axes[1].plot(self.epoch, self.acc)
-        self.axes[1].legend([self.name + "/acc"])
-        self.axes[1].set_xticks(self.epoch)
-        self.axes[1].set_xticklabels([str(e) for e in self.epoch])
+        ticks = self._get_tick()
+        if self.loss is not None:
+            self.axes[0].plot(self.epoch, self.loss)
+            self.axes[0].legend([self.name + "/loss"])
+            self.axes[0].set_xticks(ticks)
+            self.axes[0].set_xticklabels([str(e) for e in ticks])
+        if self.acc is not None:
+            self.axes[1].plot(self.epoch, self.acc)
+            self.axes[1].legend([self.name + "/acc"])
+            self.axes[1].set_xticks(ticks)
+            self.axes[1].set_xticklabels([str(e) for e in ticks])
 
         plt.show() if show else None
 
@@ -62,3 +72,7 @@ class History (object):
         """
         clear_output(wait=True)
         self.plot(axes=axes, show=show)
+
+    def clear(self):
+        clear_output(wait=True)
+
