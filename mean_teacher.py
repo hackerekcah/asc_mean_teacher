@@ -16,7 +16,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
-        lr=1e-3, teacher_weight=3, teacher_ema_alhpa=0.999, log_level='DEBUG'):
+        lr=1e-3, teacher_weight=3, teacher_ema_alhpa=0.99, log_level='DEBUG'):
 
     # setup logging and save kwargs
     kwargs = locals()

@@ -61,7 +61,7 @@ class Teacher (object):
         self.optimizer = None
         self.logits = None
 
-    def bind(self, student, teacher_alpha=0.999):
+    def bind(self, student, teacher_alpha=0.99):
         logging.info("WeightEMA teacher_alpha:{}".format(teacher_alpha))
         self.optimizer = WeightEMA(self.model.parameters(), student.model.parameters(), alpha=teacher_alpha)
         return self
@@ -79,7 +79,7 @@ class WeightEMA (object):
     """
     Exponential moving average weight optimizer for mean teacher model
     """
-    def __init__(self, params, src_params, alpha=0.999):
+    def __init__(self, params, src_params, alpha=0.99):
         self.params = list(params)
         self.src_params = list(src_params)
         self.alpha = alpha
