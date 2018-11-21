@@ -79,7 +79,8 @@ class History (object):
 
 
 class Reporter(object):
-    def __init__(self, exp, ckpt_file=None):
+    def __init__(self, exp):
+        self.exp = exp
         self.ckpt_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/ckpt'
         self.exp_path = os.path.join(self.ckpt_root, exp)
         self.run_list = os.listdir(self.exp_path)
@@ -117,7 +118,6 @@ class Reporter(object):
 
         self.selected_ckpt = ckpt_file
 
-
         return self
 
     def pconfig(self, run):
@@ -125,6 +125,12 @@ class Reporter(object):
             self.selected_log = os.path.join(self.exp_path, run+'.log')
         else:
             self.selected_log = os.path.join(self.exp_path, self.selected_run + '.log')
+
+        if not os.path.exists(self.selected_log):
+            if run:
+                self.selected_log = os.path.join(os.path.dirname(self.exp_path), run + '.log')
+            else:
+                self.selected_log = os.path.join(os.path.dirname(self.exp_path), self.selected_run + '.log')
 
         with open(self.selected_log, 'r') as f:
             config = f.readline()
@@ -148,3 +154,14 @@ class Reporter(object):
             else:
                 print("{:10},Epoch{:4d},Acc{:.3f}".format(hist.name, self.selected_epoch,
                                                           hist.acc[self.selected_epoch - 1]))
+
+    def pbest_ts(self, run="", epoch=None):
+        # set tp mean_teacher/teacher
+        for role in ['teacher', 'student']:
+            self.exp_path = os.path.join(self.ckpt_root, self.exp, role)
+            self.run_list = os.listdir(self.exp_path)
+
+            print('\n\n\n<<<{}\n'.format(role))
+            self.pbest(run=run, epoch=epoch)
+
+
