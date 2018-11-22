@@ -45,11 +45,12 @@ class Exp1Loader (object):
 
 class UdaLoader (object):
 
-    def __init__(self):
+    def __init__(self, min_value = -0.2, max_value = 0.2, probability = 0.5):
         self.trainA = TaskbDevSet(mode='train', device='A', norm_device='A', transform=ToTensor())
         self.trainb_double = TaskbDevDoubleSet(mode='train', device='b', norm_device='b',
                                                transform=transforms.Compose([
-                                                   RandomErasing(probability=0.9),
+                                                   # RandomErasing(probability=probability),
+                                                   Random_enhance_spl(min_value=min_value, max_value=max_value),
                                                    ToTensor()
                                                ]))
         self.trainb = TaskbDevSet(mode='train', device='b', norm_device='b', transform=ToTensor())

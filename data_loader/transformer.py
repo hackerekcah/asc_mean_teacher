@@ -4,12 +4,15 @@ import math
 import numpy.random as random
 from data_manager.dcase18_taskb import *
 from data_manager.taskb_standrizer import *
+
+
 class ToTensor(object):
 
     def __call__(self, sample):
         x, y = torch.from_numpy(sample[0]), torch.from_numpy(sample[1])
         x, y = x.type(torch.FloatTensor), y.type(torch.LongTensor)
         return x, y
+
 
 class RandomErasing(object):
     """
@@ -20,6 +23,7 @@ class RandomErasing(object):
         self.sl = sl
         self.sh = sh
         self.r1 = r1
+
     def __call__(self, sample):
         if random.uniform(0, 1) > self.probability:
             return sample
@@ -39,23 +43,27 @@ class RandomErasing(object):
                 return np.expand_dims(img, axis=0), sample[1]
         return sample
 
+
 class Random_enhance_spl(object):
     """
     random enhance sound pressure level on spectrogram
     """
-    def __init__(self):
-        self.enhance_number = random.uniform(-0.2, 0.2)
+    def __init__(self, min_value = -0.2, max_value = 0.2):
+        self.enhance_number = random.uniform(min_value, max_value)
+
     def __call__(self, sample):
         spec = sample[0]
         spec = spec.squeeze()
         spec = spec + self.enhance_number
         return np.expand_dims(spec, axis=0), sample[1]
 
+
 def show_spec(img):
     plt.figure()
     librosa.display.specshow(img)
-    plt.title('After random erasing')
+    plt.title('After random processing')
     plt.show()
+
 
 if __name__ == '__main__':
     filename = 'airport-barcelona-0-1-a.wav'
@@ -63,8 +71,8 @@ if __name__ == '__main__':
     data_stdrizer = TaskbStandarizer(data_manager=data_manager)
     img = data_stdrizer.load_normed_spec_by_name(filename, norm_device='a')
     sample = (np.expand_dims(img, axis=0), '3')
-    # img = img.squeeze()
     data_manager.show_spec_by_name(filename)
-    sample = RandomErasing(probability=0.9)(sample)
+    # sample = RandomErasing(probability=0.9)(sample)
+    sample = Random_enhance_spl(-0.2, 0.2)(sample)
     show_spec(sample[0].squeeze())
 

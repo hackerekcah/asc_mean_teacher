@@ -16,7 +16,8 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
-        lr=1e-3, teacher_weight=3, teacher_ema_alhpa=0.99, log_level='DEBUG'):
+        lr=1e-3, teacher_weight=3, teacher_ema_alhpa=0.99, log_level='DEBUG',
+        min_value=-0.2, max_value=0.2, probability=0.9):
 
     # setup logging and save kwargs
     kwargs = locals()
@@ -30,7 +31,7 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
     os.environ['CUDA_VISIBLE_DEVICES'] = str(device)
     device = torch.device('cuda')
 
-    uda_loader = UdaLoader()
+    uda_loader = UdaLoader(min_value=min_value, max_value=max_value, probability=probability)
 
     # load train
     src_loader, dst_double_loader = uda_loader.train(batch_size=128, shuffle=True)
