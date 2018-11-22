@@ -1,6 +1,7 @@
 from torch.utils.data import Dataset, DataLoader
 from data_loader.data_sets import *
 from data_loader.transformer import *
+from torchvision import transforms
 import torch
 
 
@@ -46,7 +47,11 @@ class UdaLoader (object):
 
     def __init__(self):
         self.trainA = TaskbDevSet(mode='train', device='A', norm_device='A', transform=ToTensor())
-        self.trainb_double = TaskbDevDoubleSet(mode='train', device='b', norm_device='b', transform=ToTensor())
+        self.trainb_double = TaskbDevDoubleSet(mode='train', device='b', norm_device='b',
+                                               transform=transforms.Compose([
+                                                   RandomErasing(probability=0.9),
+                                                   ToTensor()
+                                               ]))
         self.trainb = TaskbDevSet(mode='train', device='b', norm_device='b', transform=ToTensor())
         self.valp = TaskbDevSet(mode='test', device='p', norm_device='A', transform=ToTensor())
         self.valb = TaskbDevSet(mode='test', device='b', norm_device='b', transform=ToTensor())
