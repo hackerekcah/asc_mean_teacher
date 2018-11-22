@@ -65,11 +65,11 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
 
     # checkpoint after new History, order matters
     teacher_ckpter = CheckPoint(model=teacher.model, optimizer=None, path='{}/ckpt/mean_teacher/teacher'.format(ROOT_DIR),
-                                prefix=ckpt_prefix, interval=2, save_num=2)
+                                prefix=ckpt_prefix, interval=1, save_num=1)
     teacher_ckpter.bind_histories([train_hist['T/A'], train_hist['T/b'], val_hist['T/p'], val_hist['T/b']])
 
     student_ckpter = CheckPoint(model=student.model, optimizer=student.optimizer, path='{}/ckpt/mean_teacher/student'.format(ROOT_DIR),
-                                prefix=ckpt_prefix, interval=2, save_num=2)
+                                prefix=ckpt_prefix, interval=1, save_num=1)
     student_ckpter.bind_histories([train_hist['S/A'], train_hist['S/b'], val_hist['S/p'], val_hist['S/b']])
 
     # setup rampup
