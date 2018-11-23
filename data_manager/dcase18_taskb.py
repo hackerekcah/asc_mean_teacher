@@ -130,6 +130,28 @@ class Dcase18TaskbData:
         label_onehot = le.fit_transform(np.array(label))
         return data, label_onehot
 
+    def extract_neg_para_npy(self, mode='train'):
+        data = []
+        label = []
+        para_audios = []
+        with h5py.File(self.dev_h5_path, 'r') as f:
+            audios = f[mode].keys()
+            # get list of para audios
+            for audio in audios:
+                if audio[-5] == 'b':
+                    para_audio = audio.replace('-b.wav', '-a.wav')
+                    para_audios.append(para_audio)
+            for audio in audios:
+                if audio[-5] == 'a' and audio not in para_audios:
+                    neg_para_audio = audio
+                    data.append(np.array(f[mode][neg_para_audio].value))
+                    label.append(np.array(f[mode][neg_para_audio].attrs['label']))
+        # concat data along existing axis 0
+        data = np.concatenate(data, axis=0)
+        le = preprocessing.LabelBinarizer()
+        label_onehot = le.fit_transform(np.array(label))
+        return data, label_onehot
+
     def extract_npy_fnames(self, mode='train', devices='abc'):
         """
         Extract data, label, fnames(encoded as int) as numpy array from dev.h5
@@ -195,6 +217,10 @@ class Dcase18TaskbData:
                 # add parallel data as separate device p
                 grp = f.create_group(mode + '/p')
                 grp['data'], grp['label'] = self.extrac_para_npy(mode=mode)
+
+                # add neg parallel data as device A
+                grp = f.create_group(mode + '/A')
+                grp['data'], grp['label'] = self.extract_neg_para_npy(mode=mode)
         f.close()
 
     def create_dev_matrix_fnames(self):
@@ -302,5 +328,4 @@ if __name__ == '__main__':
     data_manager.create_dev_matrix()
     data_manager.create_dev_matrix_fnames()
     data, label = data_manager.load_dev('train', devices='b')
-    data_manager.show_spec_by_name('airport-barcelona-0-1-a.wav')
 
