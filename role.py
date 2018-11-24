@@ -53,6 +53,7 @@ class Student (object):
 class Teacher (object):
     def __init__(self, model):
         self.model = model
+        self._step = 0
 
         # for saving memory
         for param in list(self.model.parameters()):
@@ -72,14 +73,15 @@ class Teacher (object):
         return self
 
     def update(self):
-        self.optimizer.step()
+        self.optimizer.step(self._step)
+        self._step += 1
 
 
 class WeightEMA (object):
     """
     Exponential moving average weight optimizer for mean teacher model
     """
-    def __init__(self, params, src_params, alpha=0.99):
+    def __init__(self, params, src_params, alpha=0.999):
         self.params = list(params)
         self.src_params = list(src_params)
         self.alpha = alpha
@@ -87,10 +89,12 @@ class WeightEMA (object):
         for p, src_p in zip(self.params, self.src_params):
             p.data[:] = src_p.data[:]
 
-    def step(self):
-        one_minus_alpha = 1.0 - self.alpha
+    def step(self, global_step):
+        # Use the true average until the exponential average is more correct
+        alpha = min(1 - 1 / (global_step + 1), self.alpha)
+        one_minus_alpha = 1.0 - alpha
         for p, src_p in zip(self.params, self.src_params):
-            p.data.mul_(self.alpha)
+            p.data.mul_(alpha)
             p.data.add_(src_p.data * one_minus_alpha)
 
 
