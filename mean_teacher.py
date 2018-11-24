@@ -27,7 +27,9 @@ def run(exp_name='mean_teacher',
         log_level='DEBUG',
         min_value=-0.2,
         max_value=0.2,
-        probability=0.9):
+        probability=0.9,
+        is_plot=False
+        ):
 
     # setup logging and save kwargs
     kwargs = locals()
@@ -75,11 +77,13 @@ def run(exp_name='mean_teacher',
     val_hist['S/b'] = History(name='student/val/b')
 
     # checkpoint after new History, order matters
-    teacher_ckpter = CheckPoint(model=teacher.model, optimizer=None, path='{}/ckpt/{}/teacher'.format(ROOT_DIR, exp_name),
+    teacher_ckpter = CheckPoint(model=teacher.model, optimizer=None,
+                                path='{}/ckpt/{}/teacher'.format(ROOT_DIR, exp_name),
                                 prefix=ckpt_prefix, interval=1, save_num=1)
     teacher_ckpter.bind_histories([train_hist['T/A'], train_hist['T/b'], val_hist['T/p'], val_hist['T/b']])
 
-    student_ckpter = CheckPoint(model=student.model, optimizer=student.optimizer, path='{}/ckpt/mean_teacher/student'.format(ROOT_DIR),
+    student_ckpter = CheckPoint(model=student.model, optimizer=student.optimizer,
+                                path='{}/ckpt/{}/student'.format(ROOT_DIR, exp_name),
                                 prefix=ckpt_prefix, interval=1, save_num=1)
     student_ckpter.bind_histories([train_hist['S/A'], train_hist['S/b'], val_hist['S/p'], val_hist['S/b']])
 
@@ -128,11 +132,11 @@ def run(exp_name='mean_teacher',
         train_hist['T/A'].clear()
 
         for key in train_hist.keys():
-            # train_hist[key].plot()
+            train_hist[key].plot() if is_plot else None
             logging.info("Epoch{:04d},{:15},{}".format(epoch, train_hist[key].name, str(train_hist[key].recent)))
 
         for key in val_hist.keys():
-            # val_hist[key].plot()
+            val_hist[key].plot() if is_plot else None
             logging.info("Epoch{:04d},{:15},{}".format(epoch, val_hist[key].name, str(val_hist[key].recent)))
 
         teacher_ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_hist['T/b'].recent)
@@ -154,6 +158,7 @@ if __name__ == '__main__':
         'lr': 1e-3,
         'teacher_weight': 3,
         'teacher_ema_alhpa': 0.99,
-        'log_level': 'DEBUG'
+        'log_level': 'DEBUG',
+        'is_plot': True
        }
     run(**args)
