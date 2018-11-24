@@ -15,13 +15,23 @@ np.random.seed(0)
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
-        lr=1e-3, teacher_weight=3, teacher_ema_alhpa=0.99, log_level='DEBUG',
-        min_value=-0.2, max_value=0.2, probability=0.9):
+def run(exp_name='mean_teacher',
+        ckpt_prefix='Run01',
+        device='3',
+        rampup_epochs=80,
+        run_epochs=1000,
+        is_bn=True,
+        lr=1e-3,
+        teacher_weight=3,
+        teacher_ema_alhpa=0.99,
+        log_level='DEBUG',
+        min_value=-0.2,
+        max_value=0.2,
+        probability=0.9):
 
     # setup logging and save kwargs
     kwargs = locals()
-    log_file = '{}/ckpt/mean_teacher/{}.log'.format(ROOT_DIR, ckpt_prefix)
+    log_file = '{}/ckpt/{}/{}.log'.format(ROOT_DIR, exp_name, ckpt_prefix)
     if not os.path.exists(os.path.dirname(log_file)):
         os.makedirs(os.path.dirname(log_file))
     logging.basicConfig(filename=log_file, level=getattr(logging, log_level.upper(), None))
@@ -43,10 +53,10 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
     val_loaders = uda_loader.val(batch_size=128, shuffle=False)
 
     # load model to cuda
-    student_model = net_archs.BaseConv(filters=32, is_bn=True, is_drop=True)
+    student_model = net_archs.BaseConv(filters=32, is_bn=is_bn, is_drop=True)
     student_model.to(device)
 
-    teacher_model = net_archs.BaseConv(filters=32, is_bn=True, is_drop=True)
+    teacher_model = net_archs.BaseConv(filters=32, is_bn=is_bn, is_drop=True)
     teacher_model.to(device)
 
     student = Student(student_model, lr=lr, teacher_weight=teacher_weight)
@@ -65,7 +75,7 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
     val_hist['S/b'] = History(name='student/val/b')
 
     # checkpoint after new History, order matters
-    teacher_ckpter = CheckPoint(model=teacher.model, optimizer=None, path='{}/ckpt/mean_teacher/teacher'.format(ROOT_DIR),
+    teacher_ckpter = CheckPoint(model=teacher.model, optimizer=None, path='{}/ckpt/{}/teacher'.format(ROOT_DIR, exp_name),
                                 prefix=ckpt_prefix, interval=1, save_num=1)
     teacher_ckpter.bind_histories([train_hist['T/A'], train_hist['T/b'], val_hist['T/p'], val_hist['T/b']])
 
@@ -122,7 +132,7 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
             logging.info("Epoch{:04d},{:15},{}".format(epoch, train_hist[key].name, str(train_hist[key].recent)))
 
         for key in val_hist.keys():
-            val_hist[key].plot()
+            # val_hist[key].plot()
             logging.info("Epoch{:04d},{:15},{}".format(epoch, val_hist[key].name, str(val_hist[key].recent)))
 
         teacher_ckpter.check_on(epoch=epoch, monitor='acc', loss_acc=val_hist['T/b'].recent)
@@ -131,3 +141,19 @@ def run(device='3', ckpt_prefix='Run01', rampup_epochs=80, run_epochs=1000,
     # explicitly save the last run
     teacher_ckpter.save(epoch=run_epochs-1, monitor='acc', loss_acc=val_hist['T/b'].recent)
     student_ckpter.save(epoch=run_epochs-1, monitor='acc', loss_acc=val_hist['T/b'].recent)
+
+
+if __name__ == '__main__':
+    args = {
+        'device': '3',
+        'exp_name': 'mean_teacher',
+        'ckpt_prefix': 'Run99',
+        "rampup_epochs": 80,
+        "run_epochs": 1000,
+        'is_bn': True,
+        'lr': 1e-3,
+        'teacher_weight': 3,
+        'teacher_ema_alhpa': 0.99,
+        'log_level': 'DEBUG'
+       }
+    run(**args)
