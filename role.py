@@ -22,7 +22,7 @@ class Student (object):
         logits = self.model(xl)
         self.cls_loss = self.cls_criterion(logits, y)
         self.total_loss += self.cls_loss
-        logging.debug("Step:{},cls_loss:{}".format(self._step, self.cls_loss.item()))
+        logging.info("Step:{},cls_loss:{}".format(self._step, self.cls_loss.item()))
         return self.cls_loss.item()
 
     def _consistency_loss(self, student_logits, teacher_logits):
@@ -36,8 +36,8 @@ class Student (object):
         self.consistency_loss = self._consistency_loss(student_logits, teacher.logits)
         weighted_consistency_loss = self.teacher_weight * rampup_weight * self.consistency_loss
         self.total_loss += weighted_consistency_loss
-        logging.debug("Step:{},consistency_loss:{}".format(self._step, self.consistency_loss.item()))
-        logging.debug("Step:{},weighted_consistency_loss:{}".format(self._step, weighted_consistency_loss.item()))
+        logging.info("Step:{},consistency_loss:{}".format(self._step, self.consistency_loss.item()))
+        logging.info("Step:{},weighted_consistency_loss:{}".format(self._step, weighted_consistency_loss.item()))
         return weighted_consistency_loss.item()
 
     def update(self):
@@ -112,7 +112,7 @@ class RampUp (object):
             weight = math.exp(-p * p * 5.0)
         else:
             weight = 1.0
-        logging.debug("Epoch{},rampup_weight{:.3f}".format(self._rampup_counter, weight))
+        logging.info("Epoch{},rampup_weight{:.3f}".format(self._rampup_counter, weight))
         return weight
 
 
